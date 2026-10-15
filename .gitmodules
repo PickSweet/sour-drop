@@ -1,0 +1,9 @@
+[submodule "3rdparty/raylib"]
+	path = 3rdparty/raylib
+	url = git@github.com:raysan5/raylib.git
+[submodule "3rdparty/cc65"]
+	path = 3rdparty/cc65
+	url = git@github.com:cc65/cc65.git
+[submodule "3rdparty/zopfli"]
+	path = 3rdparty/zopfli
+	url = git@github.com:google/zopfli.git
