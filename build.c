@@ -1,6 +1,6 @@
 #define NOB_IMPLEMENTATION
 #include "3rdparty/nob/nob.h"
-#include "builders/common.h"
+#include ".b/common.h"
 
 #define SRC_FOLDER "src/"
 
@@ -15,21 +15,26 @@ int main(int argc, char **argv) {
     if (!mkdir_if_not_exists(_CACHE)) return 1;
     if (!mkdir_if_not_exists(_DEP)) return 1;
     if (!mkdir_if_not_exists(_BIN)) return 1;
+    if (!mkdir_if_not_exists(BUILDER_OUT_FOLDER)) return 1;
 
-    GO_REBUILD_URSELF_PLUS(argc, argv, "builders/zopfli.c");
+    GO_REBUILD_URSELF(argc, argv);
 
     Cmd cmd = {0};
     //test
-    if (!file_exists("builders/zopfli-builder.exe")) {
-        cmd_append(&cmd, "gcc" , "-Wall", "-Wextra", "-Wpedantic", "-o", "builders/zopfli-builder.exe", "builders/zopfli.c");
+    if (!file_exists(BUILDER_FOLDER "zopfli-builder.exe")) {
+        cmd_append(&cmd, BUILD_CC ,"-DCC="BUILD_CC, "-Wall", "-Wextra", "-Wpedantic", "-o", EXE_PATH(BUILDER_OUT_FOLDER,"zopfli-builder"), BUILDER_FOLDER "zopfli.c");
         if (!cmd_run(&cmd)) return 1;
     }
-
-    cmd.count = 0;
-    cmd_append(&cmd, "builders/zopfli-builder.exe");
+    if (!file_exists(BUILDER_FOLDER "cc65-builder.exe")) {
+        cmd_append(&cmd, BUILD_CC ,"-DCC="BUILD_CC, "-Wall", "-Wextra", "-Wpedantic", "-o", EXE_PATH(BUILDER_OUT_FOLDER,"cc65-builder"), BUILDER_FOLDER "cc65.c");
+        if (!cmd_run(&cmd)) return 1;
+    }
+    cmd_append(&cmd, EXE_PATH(BUILDER_OUT_FOLDER, "zopfli-builder"));
+    if (!cmd_run(&cmd)) return 1;
+    cmd_append(&cmd, EXE_PATH(BUILDER_OUT_FOLDER, "cc65-builder"));
     if (!cmd_run(&cmd)) return 1;
 
-    cmd_append(&cmd, "gcc" , "-Wall", "-Wextra", "-Wpedantic", "-std=c89", "-o", "bin/main", "src/main.c", NULL);
+    cmd_append(&cmd, BUILD_CC , "-Wall", "-Wextra", "-Wpedantic", "-std=c89", "-o", "bin/main", "src/main.c", NULL);
 
     return 0;
 }

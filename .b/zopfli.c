@@ -8,16 +8,6 @@
 
 #define TARGET(name) TARGET_PAIR(OBJECT_DIR, SRC_DIR, name)
 
-#ifdef _WIN32
-#define STATIC_OUT _BIN "zopfli/libzopfli.a"
-#define BIN_OUT _BIN "zopfli/zopfli.exe"
-#define SHARED_OUT _BIN "zopfli/zopfli.dll"
-#else
-#define STATIC_OUT _BIN "zopfli/libzopfli.a"
-#define BIN_OUT _BIN "zopfli/zopfli"
-#define SHARED_OUT _BIN "zopfli/zopfli.so"
-#endif
-
 #define CFLAGS "-W", "-Wall", "-Wextra", "-ansi", "-pedantic", "-lm", "-O3", "-Wno-unused-function", "-fPIC", "-I" SRC_DIR
 static const Target targets[] = {
     TARGET(blocksplitter),
@@ -39,6 +29,11 @@ int main(int argc, char **argv) {
 
     GO_REBUILD_URSELF(argc, argv);
 
+    if (get_file_type(SRC_DIR) != FILE_DIRECTORY) {
+        nob_log(ERROR, "Source directory not found: %s\n", SRC_DIR);
+        return 1;
+    }
+
     Cmd cmd = {0};
     Procs procs = {0};
     File_Paths o = {0};
@@ -48,7 +43,7 @@ int main(int argc, char **argv) {
 
     for (size_t i = 0; i < ARRAY_LEN(targets); ++i){
         da_append(&o, targets[i].bin_path);
-        cmd_append(&cmd, "gcc");
+        cmd_append(&cmd, BUILD_CC);
         cmd_append(&cmd, CFLAGS);
         cmd_append(&cmd, "-c", targets[i].src_path);
         cmd_append(&cmd, "-o", targets[i].bin_path);
@@ -57,25 +52,25 @@ int main(int argc, char **argv) {
 
     if(!procs_flush(&procs)) return 1;
     // build static library
-    cmd_append(&cmd, "ar", "rcs", STATIC_OUT);
+    cmd_append(&cmd, AR, "rcs", ARCHIVE_PATH(ZOPFLI_DIR, "libzopfli"));
     for(size_t i = 0; i < o.count - 1; ++i){
         cmd_append(&cmd, o.items[i]);
     }
     if (!cmd_run(&cmd)) return 1;
     // build shared library
-    cmd_append(&cmd, "gcc");
+    cmd_append(&cmd, BUILD_CC);
     for(size_t i = 0; i < o.count - 1; ++i){
         cmd_append(&cmd, o.items[i]);
     }
-    cmd_append(&cmd, CFLAGS, "-shared", "-Wl,-soname," SHARED_OUT, "-o", SHARED_OUT);
+    cmd_append(&cmd, CFLAGS, "-shared", "-o", SHARED_PATH(ZOPFLI_DIR, "zopfli"));
     if (!cmd_run(&cmd)) return 1;
     
     // build binary
-    cmd_append(&cmd, "gcc");
+    cmd_append(&cmd, BUILD_CC);
     for(size_t i = 0; i < o.count; ++i){
         cmd_append(&cmd, o.items[i]);
     }
-    cmd_append(&cmd, CFLAGS, "-o", BIN_OUT);
+    cmd_append(&cmd, CFLAGS, "-o", EXE_PATH(ZOPFLI_DIR, "zopfli"));
     if (!cmd_run(&cmd)) return 1;
 
 
