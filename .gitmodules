@@ -7,3 +7,6 @@
 [submodule "3rdparty/zopfli"]
 	path = 3rdparty/zopfli
 	url = git@github.com:google/zopfli.git
+[submodule "internal/ps.h"]
+	path = internal/ps.h
+	url = git@github.com:PickSweet/ps.h.git
