@@ -1,20 +1,6 @@
-#ifndef BUILDERS_COMMON_H
-#define BUILDERS_COMMON_H
+#ifndef _H_BUILDERS_COMMON_H_
+#define _H_BUILDERS_COMMON_H_
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <sys/stat.h>
-#include <unistd.h>
-
-#define STRINGIFY2(x) #x
-#define STRINGIFY(x) STRINGIFY2(x)
-
-#ifndef CC
-#define BUILD_CC "gcc"
-#else
-#define BUILD_CC STRINGIFY(CC)
-#endif
 
 #ifndef AR
 #define AR "ar"
@@ -39,15 +25,15 @@
 #define SHARED_SUFFIX ".so"
 #endif
 
-#define ARCHIVE_PATH(root, name) root name ARCHIVE_SUFFIX
-#define EXE_PATH(root, name) root name EXE_SUFFIX
-#define SHARED_PATH(root, name) root name SHARED_SUFFIX
-
-#define TARGET_PAIR(OUT,SRC,name) {OUT #name ".o", SRC #name ".c"}
+#define _archive_path(root, name) root name ARCHIVE_SUFFIX
+#define _exe_path(root, name) root name EXE_SUFFIX
+#define _shared_path(root, name) root name SHARED_SUFFIX
 
 typedef struct {
     const char *bin_path;
     const char *src_path;
-} Target;
+} target_pair_t;
 
-#endif // BUILDERS_COMMON_H
+#define _target_pair(object_dir, src_dir, name) {object_dir _ps_stringify(name) ".o", src_dir _ps_stringify(name) ".c"}
+
+#endif // _H_BUILDERS_COMMON_H_
