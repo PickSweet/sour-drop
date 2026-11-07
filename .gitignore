@@ -1,4 +1,4 @@
 .sour-drop
 *.exe
 *.old
-.vscode/
+.vscode
