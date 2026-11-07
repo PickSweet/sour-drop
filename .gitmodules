@@ -10,3 +10,6 @@
 [submodule "internal/ps.h"]
 	path = internal/ps.h
 	url = git@github.com:PickSweet/ps.h.git
+[submodule "3rdparty/clay"]
+	path = 3rdparty/clay
+	url = git@github.com:nicbarker/clay.git
